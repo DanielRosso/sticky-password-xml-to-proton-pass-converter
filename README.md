@@ -45,6 +45,12 @@ Sticky Password uses a unique XML structure where website information (`<Account
 
 **Try it here:** [https://DanielRosso.github.io/sticky-password-xml-to-proton-pass-converter/](https://DanielRosso.github.io/sticky-password-xml-to-proton-pass-converter/)
 
+## Preview
+
+![Tool Preview](sticky-xml-converter.png)
+
+*The interface is kept minimal and focused on security.*
+
 ---
 ## ⚖️ License
 
