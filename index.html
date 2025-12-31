@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Sticky Password XML import into Proton Pass</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 40px auto; line-height: 1.6; padding: 0 20px; background-color: #f4f4f9; }
+        .box { border: 2px solid #6d4aff; padding: 30px; text-align: center; border-radius: 12px; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button { background: #6d4aff; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; }
+        button:hover { background: #5739d6; }
+        .info { font-size: 0.9em; color: #666; margin-top: 15px; }
+    </style>
+</head>
+<body>
+    <h2>Sticky Password XML ➔ Proton Pass Generic CSV</h2>
+    
+    <div class="box">
+        <input type="file" id="fileInput" accept=".xml">
+        <br><br>
+        <button id="convertBtn">Daten konvertieren & speichern</button>
+        <div class="info">Die Verarbeitung erfolgt zu 100% lokal in deinem Browser.</div>
+    </div>
+
+    <script>
+        document.getElementById('convertBtn').addEventListener('click', () => {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files[0]) return alert("Bitte wähle zuerst die XML-Datei aus!");
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const parser = new DOMParser();
+                const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+                
+                // 1. Alle Logins in einer Map speichern (Key = ID)
+                const loginMap = {};
+                const logins = xmlDoc.getElementsByTagName("Login");
+                for (let l of logins) {
+                    const id = l.getAttribute("ID");
+                    if (id) {
+                        loginMap[id] = {
+                            username: l.getAttribute("Name") || "",
+                            password: l.getAttribute("Password") || ""
+                        };
+                    }
+                }
+
+                // 2. CSV Header für Proton Pass
+                let csvContent = "name,url,username,password,note\n";
+
+                // 3. Accounts durchlaufen und Logins zuordnen
+                const accounts = xmlDoc.getElementsByTagName("Account");
+                for (let acc of accounts) {
+                    const name = acc.getAttribute("Name") || "Unbekannt";
+                    const url = acc.getAttribute("Link") || "";
+                    
+                    // Finde die verknüpfte Login-ID (SourceLoginID im LoginLinks-Bereich)
+                    const loginLink = acc.getElementsByTagName("Login")[0];
+                    if (loginLink) {
+                        const sourceId = loginLink.getAttribute("SourceLoginID");
+                        const credentials = loginMap[sourceId];
+
+                        if (credentials) {
+                            const row = [
+                                name, 
+                                url, 
+                                credentials.username, 
+                                credentials.password, 
+                                "Importiert aus Sticky Password"
+                            ].map(v => `"${v.replace(/"/g, '""')}"`);
+                            
+                            csvContent += row.join(",") + "\n";
+                        }
+                    }
+                }
+
+                downloadCSV(csvContent);
+            };
+            reader.readAsText(fileInput.files[0]);
+        });
+
+        function downloadCSV(content) {
+            const blob = new Blob([content], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", "sticky_to_proton.csv");
+            link.click();
+        }
+    </script>
+</body>
+</html>
