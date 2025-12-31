@@ -41,6 +41,7 @@ Sticky Password uses a unique XML structure where website information (`<Account
 # Sticky Password to Proton Pass Converter
 
 [![Live Demo](https://img.shields.io/badge/demo-online-brightgreen.svg)](https://DanielRosso.github.io/sticky-password-xml-to-proton-pass-converter/)
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/b1ubb)
 
 **Try it here:** [https://DanielRosso.github.io/sticky-password-xml-to-proton-pass-converter/](https://DanielRosso.github.io/sticky-password-xml-to-proton-pass-converter/)
 
